@@ -1,64 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oculus Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Meta Account</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    .link-button {
+      padding: 15px 30px;
+      font-size: 16px;
+      background-color: #0078ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .link-button:hover {
+      background-color: #005bb5;
+    }
+  </style>
 </head>
 <body>
-    <h1>Login with Oculus</h1>
-    <button id="loginButton">Connect Account</button>
-    <div id="output"></div>
+  <h1>Link Your Meta Account</h1>
+  <p>Click the button below to link your Meta account.</p>
+  <button class="link-button" id="linkMetaAccount">Link Meta Account</button>
+  
+  <script>
+    const organizationId = "586010027150413";
+    const redirectUri = encodeURIComponent("https://burgersmove.github.io/");
+    const metaAuthUrl = `https://auth.oculus.com/sso/?redirect_uri=${redirectUri}&organization_id=${organizationId}`;
 
-    <script>
-        const oculusSSOUrl = "https://auth.oculus.com/sso/?organization_id=586010027150413&redirect_uri=https%3A%2F%2Fburgersmove.github.io%2F";
+    document.getElementById("linkMetaAccount").addEventListener("click", () => {
+      // Redirect the user to Meta's account linking URL
+      window.location.href = metaAuthUrl;
+    });
 
-        document.getElementById("loginButton").addEventListener("click", () => {
-            window.location.href = oculusSSOUrl;
-        });
+    // Handle the redirection back from Meta with the base64-encoded JSON
+    const hashFragment = window.location.hash.substring(1); // Remove the '#' at the start
+    if (hashFragment) {
+      try {
+        const decodedData = JSON.parse(atob(hashFragment));
+        console.log("Authorization Code:", decodedData.code);
+        console.log("Org-Scoped ID:", decodedData["org-scoped_id"]);
 
-        // Check if there's a hash in the URL
-        window.onload = () => {
-            const hash = window.location.hash.substring(1); // Remove the "#" from the hash
-            if (hash) {
-                try {
-                    // Decode Base64
-                    const decodedData = atob(hash);
-                    const jsonData = JSON.parse(decodedData);
-
-                    // Display the data
-                    document.getElementById("output").innerText = `
-                        Code: ${jsonData.code}
-                        Org Scoped ID: ${jsonData.org_scoped_id}
-                    `;
-
-                    // Send data to backend
-                    fetch("http://localhost:3000/login", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            code: jsonData.code,
-                            org_scoped_id: jsonData.org_scoped_id,
-                        }),
-                    })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        console.log("Server response:", data);
-                        document.getElementById("output").innerText = `Login successful! Username: ${data.user.username}`;
-                    })
-                    .catch((error) => {
-                        console.error("Error:", error);
-                        alert("Login failed!");
-                    });
-
-                } catch (error) {
-                    console.error("Error decoding data:", error);
-                    document.getElementById("output").innerText = "Error decoding login data.";
-                }
-            }
-        };
-    </script>
+        // Save or process the data (e.g., send it to your backend server)
+        alert(`Linked successfully!\nAuthorization Code: ${decodedData.code}\nOrg-Scoped ID: ${decodedData["org-scoped_id"]}`);
+      } catch (error) {
+        console.error("Failed to decode the response:", error);
+      }
+    }
+  </script>
 </body>
 </html>
