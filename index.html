@@ -46,7 +46,7 @@
                     .then((response) => response.json())
                     .then((data) => {
                         console.log("Server response:", data);
-                        alert("Login successful!");
+                        document.getElementById("output").innerText = `Login successful! Username: ${data.user.username}`;
                     })
                     .catch((error) => {
                         console.error("Error:", error);
