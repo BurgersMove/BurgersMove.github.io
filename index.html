@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oculus Login</title>
+</head>
+<body>
+    <h1>Login with Oculus</h1>
+    <button id="loginButton">Connect Account</button>
+    <div id="output"></div>
+
+    <script>
+        const oculusSSOUrl = "https://auth.oculus.com/sso/?organization_id=586010027150413&redirect_uri=https%3A%2F%2Fburgersmove.github.io%2F";
+
+        document.getElementById("loginButton").addEventListener("click", () => {
+            window.location.href = oculusSSOUrl;
+        });
+
+        // Check if there's a hash in the URL
+        window.onload = () => {
+            const hash = window.location.hash.substring(1); // Remove the "#" from the hash
+            if (hash) {
+                try {
+                    // Decode Base64
+                    const decodedData = atob(hash);
+                    const jsonData = JSON.parse(decodedData);
+
+                    // Display the data
+                    document.getElementById("output").innerText = `
+                        Code: ${jsonData.code}
+                        Org Scoped ID: ${jsonData.org_scoped_id}
+                    `;
+
+                    // You can now use jsonData.code and jsonData.org_scoped_id for further processing
+                    console.log("Decoded Data:", jsonData);
+                } catch (error) {
+                    console.error("Error decoding data:", error);
+                    document.getElementById("output").innerText = "Error decoding login data.";
+                }
+            }
+        };
+    </script>
+</body>
+</html>
